@@ -25,7 +25,7 @@ use assayerpro\sitemap\RobotsTxt;
  * @author HimikLab
  * @package assayerpro\sitemap
  */
-class DefaultController extends Controller
+class WebController extends Controller
 {
     /**
      * @inheritdoc
@@ -35,8 +35,8 @@ class DefaultController extends Controller
         return [
             'pageCache' => [
                 'class' => 'yii\filters\PageCache',
-                'only' => ['index', 'robots-txt'],
-                'duration' => Yii::$app->sitemap->cacheExpire,
+                'only' => ['index'],
+                'duration' => $this->module->generator->cacheExpire,
                 'variations' => [Yii::$app->request->get('id')],
             ],
         ];
@@ -50,36 +50,21 @@ class DefaultController extends Controller
      */
     public function actionIndex($id = 0)
     {
-        $sitemap = Yii::$app->sitemap->render();
+        $sitemap = $this->module->generator->render();
         if (empty($sitemap[$id])) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
 
-        Yii::$app->response->format = Response::FORMAT_RAW;
-        $headers = Yii::$app->response->headers;
-        $headers->add('Content-Type', 'application/xml');
+        $response = Yii::$app->response;
+        $response->format = Response::FORMAT_XML;
         $result = $sitemap[$id]['xml'];
-        if (Yii::$app->sitemap->enableGzip) {
+        if ($this->module->enableGzip) {
             $result = gzencode($result);
+            $headers = $response->headers;
             $headers->add('Content-Encoding', 'gzip');
             $headers->add('Content-Length', strlen($result));
         }
-        return $result;
-    }
 
-    /**
-     * Action for sitemap/default/robot-txt
-     *
-     * @access public
-     * @return string
-     */
-    public function actionRobotsTxt()
-    {
-        $robotsTxt = empty(Yii::$app->components['robotsTxt']) ? new RobotsTxt() : Yii::$app->robotsTxt;
-        $robotsTxt->sitemap = Yii::$app->urlManager->createAbsoluteUrl(
-            empty($robotsTxt->sitemap) ? [$this->module->id.'/'.$this->id.'/index'] : $robotsTxt->sitemap
-        );
-        Yii::$app->response->format = 'txt';
-        return $robotsTxt->render();
+        echo $result;
     }
 }

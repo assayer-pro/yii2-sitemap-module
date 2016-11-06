@@ -8,11 +8,13 @@
  * @license http://opensource.org/licenses/MIT MIT
  */
 
-namespace assayerpro\sitemap\console;
+namespace assayerpro\sitemap\controllers;
 
+use assayerpro\sitemap\Module;
 use Yii;
 use yii\console\Controller;
 use yii\helpers\Console;
+use yii\helpers\Url;
 
 
 /**
@@ -21,29 +23,26 @@ use yii\helpers\Console;
  * @author Serge Larin <serge.larin@gmail.com>
  * @package assayerpro\sitemap
  */
-class CreateController extends Controller
-{
-    /**
-     * @inheritdoc
-     */
-    public $defaultAction = 'create';
 
+/**
+ * Class ConsoleController
+ *
+ * @package assayerpro\sitemap\controllers
+ * @property Module $module
+ */
+class ConsoleController extends Controller
+{
     /**
      * @var string folder for sitemaps files
      */
     public $rootDir = '@webroot';
 
     /**
-     * @var string sitemap main file name
-     */
-    public $sitemapFile = 'sitemap.xml';
-
-    /**
      * @inheritdoc
      */
     public function options($actionID)
     {
-        return array_merge(parent::options($actionID), ['rootDir', 'sitemapFile']);
+        return array_merge(parent::options($actionID), ['rootDir']);
     }
 
     /**
@@ -52,18 +51,24 @@ class CreateController extends Controller
      * @access public
      * @return integer
      */
-    public function actionCreate()
+    public function actionIndex()
     {
-        $file = Yii::getAlias($this->rootDir.'/'.$this->sitemapFile);
+        $route = '/' . $this->module->id . '/web/index';
+
+        $rootDir = Yii::getAlias('/' . trim($this->rootDir, '/'));
+        $file = $rootDir . Url::to([$route], false);
+
         $this->stdout("Generate sitemap file.\n", Console::FG_GREEN);
         $this->stdout("Rendering sitemap...\n", Console::FG_GREEN);
-        $sitemap = Yii::$app->sitemap->render();
+        $generator = $this->module->generator;
+        $sitemap = $generator->render();
 
         $this->stdout("Writing sitemap to $file\n", Console::FG_GREEN);
         file_put_contents($file, $sitemap[0]['xml']);
-        $sitemap_count = count($sitemap);
-        for ($i = 1; $i < $sitemap_count; $i++) {
-            $file = Yii::getAlias($this->rootDir.'/'.trim($sitemap[$i]['file'], '/'));
+        $sitemapCount = count($sitemap);
+
+        for ($i = 1; $i < $sitemapCount; $i++) {
+            $file = $rootDir . Url::to([$route, 'id' => $i], false);
             $this->stdout("Writing sitemap to $file\n", Console::FG_GREEN);
             file_put_contents($file, $sitemap[$i]['xml']);
         }
