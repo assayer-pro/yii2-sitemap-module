@@ -27,6 +27,7 @@ class RobotsTxtTest extends \Codeception\TestCase\Test
     public function testRobotsTxtHostHttps()
     {
         $_SERVER['HTTPS'] = 'on';
+        $_SERVER['SERVER_PORT'] = 443;
         $robotstxt = new RobotsTxt();
         $this->assertEquals('https://www.example.com', $robotstxt->host);
         $this->assertEquals("Host: https://www.example.com\n", $robotstxt->render());
