@@ -59,6 +59,9 @@ class Sitemap extends \yii\base\Component
 
     /** @var int */
     public $maxSectionUrl = 20000;
+
+    /** @var bool Sort urls by priority. Top priority urls first */
+    public $sortByPriority = false;
     /**
      * Build site map.
      * @return array
@@ -70,6 +73,10 @@ class Sitemap extends \yii\base\Component
             return $result;
         }
         $urls = $this->generateUrls();
+        if ($this->sortByPriority) {
+            $this->sortUrlsByPriority($urls);
+        }
+
         $parts = ceil(count($urls) / $this->maxSectionUrl);
         if ($parts > 1) {
             $xml = new XMLWriter();
@@ -214,5 +221,29 @@ class Sitemap extends \yii\base\Component
         } else {
             return date(DATE_W3C, strtotime($date));
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function sortUrlsByPriority(&$urls)
+    {
+        usort($urls, function ($urlA, $urlB) {
+            if (!isset($urlA['priority'])) {
+                return 1;
+            }
+
+            if (!isset($urlB['priority'])) {
+                return -1;
+            }
+
+            $a = $urlA['priority'];
+            $b = $urlB['priority'];
+            if ($a == $b) {
+                return 0;
+            }
+
+            return ($a < $b) ? 1 : -1;
+        });
     }
 }

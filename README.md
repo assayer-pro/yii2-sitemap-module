@@ -133,7 +133,8 @@ to the `require` section of your application's `composer.json` file.
             ],
         ],
         'enableGzip' => true, // default is false
-        'cacheExpire' => 1, // 1 second. Default is 24 hours
+        'cacheExpire' => 1, // 1 second. Default is 24 hours,
+        'sortByPriority' => true, // default is false
     ],
 ],
 ```
