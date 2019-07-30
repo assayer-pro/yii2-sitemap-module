@@ -1,8 +1,10 @@
 actor: Tester
+namespace: assayerpro\sitemap
 coverage:
     enabled: true
     whitelist:
         include:
+            - Module.php
             - RobotsTxt.php
             - Sitemap.php
             - controllers/DefaultController.php

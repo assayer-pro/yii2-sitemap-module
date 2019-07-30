@@ -70,6 +70,7 @@ EOF;
     {
         Yii::$app->cache->flush();
         $sitemap = new Sitemap([
+            'module' => Yii::$app->getModule('sitemap'),
             'maxSectionUrl' => 1,
             'urls' => [
                 [

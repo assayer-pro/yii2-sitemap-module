@@ -50,8 +50,6 @@ use yii\base\InvalidConfigException;
  */
 class SitemapBehavior extends Behavior
 {
-    const BATCH_MAX_SIZE = 100;
-
     /** @var callable function generate url array for model */
     public $dataClosure;
 
@@ -63,6 +61,9 @@ class SitemapBehavior extends Behavior
 
     /** @var callable function for model filter */
     public $scope;
+
+    /** @var int Query batch size */
+    public $batchSize = 100;
 
     /**
      * @inheritdoc
@@ -91,7 +92,7 @@ class SitemapBehavior extends Behavior
             call_user_func($this->scope, $query);
         }
 
-        foreach ($query->each(self::BATCH_MAX_SIZE) as $model) {
+        foreach ($query->each($this->batchSize) as $model) {
 
             $urlData = call_user_func($this->dataClosure, $model);
 

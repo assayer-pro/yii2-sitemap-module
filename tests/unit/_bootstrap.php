@@ -14,6 +14,12 @@ new \yii\console\Application([
     'id' => 'unit',
     'basePath' => __DIR__,
     'vendorPath' => __DIR__ . '/../../../vendor',
+    'modules' => [
+        'sitemap' => [
+            'class' => '\assayerpro\sitemap\Module',
+            'controllerNamespace' => '\assayerpro\sitemap\controllers',
+        ],
+    ],
     'components' => [
         'request' => [
             'class' => '\yii\web\Request',
@@ -28,7 +34,7 @@ new \yii\console\Application([
                 '/api-v2' => '/api/version2/index',
                 '/news' => '/news/default/index',
                 ['pattern' => 'sitemap-<id:\d+>', 'route' => '/sitemap/default/index', 'suffix' => '.xml'],
-                ['pattern' => 'sitemap', 'route' => 'sitemap/default/index', 'suffix' => '.xml'],
+                ['pattern' => 'sitemap', 'route' => '/sitemap/default/index', 'suffix' => '.xml'],
             ],
             'baseUrl' => '',
             'hostInfo' => 'http://www.example.com/',

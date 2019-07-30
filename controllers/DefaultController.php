@@ -12,6 +12,7 @@
 
 namespace assayerpro\sitemap\controllers;
 
+use assayerpro\sitemap\Sitemap;
 use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -36,7 +37,7 @@ class DefaultController extends Controller
             'pageCache' => [
                 'class' => 'yii\filters\PageCache',
                 'only' => ['index', 'robots-txt'],
-                'duration' => Yii::$app->sitemap->cacheExpire,
+                'duration' => $this->module->sitemap->cacheExpire,
                 'variations' => [Yii::$app->request->get('id')],
             ],
         ];
@@ -50,7 +51,10 @@ class DefaultController extends Controller
      */
     public function actionIndex($id = 0)
     {
-        $sitemap = Yii::$app->sitemap->render();
+        /**
+         * @var Sitemap $component
+         */
+        $sitemap = $this->module->sitemap->render();
         if (empty($sitemap[$id])) {
             throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
         }
@@ -59,7 +63,7 @@ class DefaultController extends Controller
         $headers = Yii::$app->response->headers;
         $headers->add('Content-Type', 'application/xml');
         $result = $sitemap[$id]['xml'];
-        if (Yii::$app->sitemap->enableGzip) {
+        if ($this->module->sitemap->enableGzip) {
             $result = gzencode($result);
             $headers->add('Content-Encoding', 'gzip');
             $headers->add('Content-Length', strlen($result));
